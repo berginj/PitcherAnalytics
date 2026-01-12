@@ -1,0 +1,14 @@
+﻿{
+  "name": "pitcher-analytics-api",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "start": "func start"
+  },
+  "dependencies": {
+    "@azure/data-tables": "^13.3.0",
+    "@azure/functions": "^4.4.0",
+    "ajv": "^8.12.0"
+  }
+}
