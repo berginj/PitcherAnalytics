@@ -4,7 +4,8 @@
   "private": true,
   "main": "index.js",
   "scripts": {
-    "start": "func start"
+    "start": "func start",
+    "build": "node -e \"console.log('api build: no-op')\""
   },
   "dependencies": {
     "@azure/data-tables": "^13.3.0",
