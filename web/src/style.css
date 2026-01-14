@@ -224,7 +224,7 @@ h1 {
 
 .heatmap {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 6px;
   background: #f1e6d8;
   padding: 10px;
@@ -232,7 +232,7 @@ h1 {
 }
 
 .heat-cell {
-  height: 70px;
+  height: 46px;
   background: rgba(212, 107, 43, 0.2);
   border-radius: 10px;
   display: grid;
@@ -244,6 +244,23 @@ h1 {
 
 .heat-cell:hover {
   transform: scale(1.02);
+}
+
+.heat-cell.outside {
+  background: rgba(29, 28, 26, 0.12);
+  color: var(--muted);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+}
+
+.heat-cell-label {
+  text-transform: uppercase;
+}
+
+.heatmap-note {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 table {

@@ -67,17 +67,20 @@
           </div>
         </div>
 
-        <h3 class="heatmap-title">3x3 Heatmap</h3>
+        <h3 class="heatmap-title">Heatmap (Zone + Outside)</h3>
         <div class="heatmap">
           <div
             v-for="cell in heatmapCells"
-            :key="cell.zone"
+            :key="cell.key"
             class="heat-cell"
+            :class="{ outside: cell.isOutside }"
             :style="{ opacity: cell.intensity }"
           >
-            <span>{{ cell.count }}</span>
+            <span v-if="!cell.isOutside">{{ cell.count }}</span>
+            <span v-else class="heat-cell-label">OUT</span>
           </div>
         </div>
+        <p class="heatmap-note">Outside zone balls: {{ outsideBallCount }}</p>
       </section>
 
       <section class="card table">
@@ -220,24 +223,65 @@ const unknownCount = computed(() =>
   pitches.value.filter((pitch) => pitch.isStrike === null || pitch.isStrike === undefined).length
 );
 
-const heatmapCells = computed(() => {
-  let counts = Array.from({ length: 9 }, () => 0);
+function getZoneRowCol(pitch) {
+  const row = pitch.zoneRow ?? pitch.zone_row ?? null;
+  const col = pitch.zoneCol ?? pitch.zone_col ?? null;
+  if (Number.isInteger(row) && Number.isInteger(col)) {
+    return { row, col };
+  }
+  if (typeof pitch.zone === "number" && pitch.zone >= 1 && pitch.zone <= 9) {
+    return {
+      row: Math.floor((pitch.zone - 1) / 3) + 1,
+      col: ((pitch.zone - 1) % 3) + 1
+    };
+  }
+  return { row: null, col: null };
+}
 
-  if (selectedSession.value && Array.isArray(selectedSession.value.heatmap)) {
-    counts = selectedSession.value.heatmap.flat().slice(0, 9).map((value) => value || 0);
+function isInZone(pitch) {
+  const { row, col } = getZoneRowCol(pitch);
+  return row >= 1 && row <= 3 && col >= 1 && col <= 3;
+}
+
+const outsideBallCount = computed(
+  () => pitches.value.filter((pitch) => pitch.isStrike === false && !isInZone(pitch)).length
+);
+
+const heatmapCells = computed(() => {
+  let centerCounts = Array.from({ length: 3 }, () => Array.from({ length: 3 }, () => 0));
+
+  if (
+    selectedSession.value &&
+    Array.isArray(selectedSession.value.heatmap) &&
+    selectedSession.value.heatmap.length === 3
+  ) {
+    centerCounts = selectedSession.value.heatmap.map((row) =>
+      row.slice(0, 3).map((value) => Number(value) || 0)
+    );
   } else {
     pitches.value.forEach((pitch) => {
-      if (typeof pitch.zone === "number" && pitch.zone >= 1 && pitch.zone <= 9) {
-        counts[pitch.zone - 1] += 1;
+      if (isInZone(pitch)) {
+        const { row, col } = getZoneRowCol(pitch);
+        centerCounts[row - 1][col - 1] += 1;
       }
     });
   }
-  const max = Math.max(1, ...counts);
-  return counts.map((count, index) => ({
-    zone: index + 1,
-    count,
-    intensity: 0.2 + (count / max) * 0.8
-  }));
+  const maxInside = Math.max(0, ...centerCounts.flat());
+  const max = Math.max(1, maxInside, outsideBallCount.value);
+  const cells = [];
+  for (let row = 0; row < 5; row += 1) {
+    for (let col = 0; col < 5; col += 1) {
+      const isOutside = row === 0 || row === 4 || col === 0 || col === 4;
+      const count = isOutside ? outsideBallCount.value : centerCounts[row - 1][col - 1];
+      cells.push({
+        key: `${row}-${col}`,
+        count,
+        isOutside,
+        intensity: 0.15 + (count / max) * 0.85
+      });
+    }
+  }
+  return cells;
 });
 
 function formatDate(value) {
