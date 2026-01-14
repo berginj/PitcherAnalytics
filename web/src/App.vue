@@ -115,6 +115,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import sampleSession from "./sample_session_summary.json";
 
 const sessions = ref([]);
 const selectedSessionId = ref(null);
@@ -124,6 +125,73 @@ const isUploading = ref(false);
 const statusMessage = ref("");
 const errorMessage = ref("");
 const fileInput = ref(null);
+const usingSample = ref(false);
+
+function zoneIndexFromRowCol(row, col) {
+  if (typeof row !== "number" || typeof col !== "number") {
+    return null;
+  }
+  if (row >= 1 && row <= 3 && col >= 1 && col <= 3) {
+    return (row - 1) * 3 + col;
+  }
+  return null;
+}
+
+function normalizeSamplePitch(pitch, index) {
+  const zoneRow = pitch.zone_row ?? null;
+  const zoneCol = pitch.zone_col ?? null;
+  const zone = zoneIndexFromRowCol(zoneRow, zoneCol);
+
+  return {
+    pitchId: pitch.pitch_id || `pitch-${index + 1}`,
+    speed: pitch.speed_mph ?? null,
+    run: pitch.run_in ?? null,
+    rise: pitch.rise_in ?? null,
+    zone,
+    zoneRow,
+    zoneCol,
+    isStrike: pitch.is_strike ?? null
+  };
+}
+
+function buildSampleData() {
+  const pitchesList = Array.isArray(sampleSession.pitches)
+    ? sampleSession.pitches.map(normalizeSamplePitch)
+    : [];
+  const sessionId = sampleSession.session_id || "sample-session";
+  const sessionName = "Sample Session";
+  const createdAt = new Date().toISOString();
+
+  return {
+    listEntry: {
+      sessionId,
+      sessionName,
+      pitchCount: sampleSession.pitch_count ?? pitchesList.length,
+      strikes: sampleSession.strikes ?? null,
+      balls: sampleSession.balls ?? null,
+      createdAt
+    },
+    session: {
+      sessionId,
+      sessionName,
+      pitchCount: sampleSession.pitch_count ?? pitchesList.length,
+      strikes: sampleSession.strikes ?? null,
+      balls: sampleSession.balls ?? null,
+      heatmap: sampleSession.heatmap ?? null
+    },
+    pitches: pitchesList
+  };
+}
+
+const sampleData = buildSampleData();
+
+function applySampleData() {
+  sessions.value = [sampleData.listEntry];
+  selectedSessionId.value = sampleData.listEntry.sessionId;
+  selectedSession.value = sampleData.session;
+  pitches.value = sampleData.pitches;
+  usingSample.value = true;
+}
 
 async function loadSessions() {
   errorMessage.value = "";
@@ -135,16 +203,24 @@ async function loadSessions() {
     const data = await response.json();
     sessions.value = data.sessions || [];
     if (sessions.value.length > 0) {
+      usingSample.value = false;
       selectSession(sessions.value[0].sessionId);
+    } else {
+      applySampleData();
     }
   } catch (error) {
     errorMessage.value = error.message;
+    applySampleData();
   }
 }
 
 async function selectSession(sessionId) {
   selectedSessionId.value = sessionId;
   if (!sessionId) {
+    return;
+  }
+  if (usingSample.value && sessionId === sampleData.listEntry.sessionId) {
+    applySampleData();
     return;
   }
   try {
@@ -298,5 +374,8 @@ function formatNumber(value, suffix) {
   return `${Number(value).toFixed(1)} ${suffix}`;
 }
 
-onMounted(loadSessions);
+onMounted(() => {
+  applySampleData();
+  loadSessions();
+});
 </script>
