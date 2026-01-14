@@ -22,8 +22,21 @@
         accept="application/json"
         @change="onFileSelected"
       />
-      <button class="btn" :disabled="isUploading" @click="openFilePicker">
-        {{ isUploading ? "Uploading..." : "Upload session_summary.json" }}
+      <button
+        class="btn icon-btn"
+        :disabled="isUploading"
+        :title="isUploading ? 'Uploading...' : 'Upload session_summary.json'"
+        @click="openFilePicker"
+      >
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M12 4l4 4h-3v6h-2V8H8l4-4zm-6 12h12v2H6v-2z"
+            fill="currentColor"
+          />
+        </svg>
+        <span class="visually-hidden">
+          {{ isUploading ? "Uploading..." : "Upload session_summary.json" }}
+        </span>
       </button>
       <p v-if="statusMessage" class="status">{{ statusMessage }}</p>
       <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
