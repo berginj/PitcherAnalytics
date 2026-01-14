@@ -14,17 +14,17 @@
       </div>
     </header>
 
-    <section class="upload-card">
-      <div>
-        <h2>Upload session_summary.json</h2>
-        <p>Validate against the shared contract and ingest into Table Storage.</p>
-      </div>
-      <div class="upload-actions">
-        <input ref="fileInput" type="file" accept="application/json" @change="onFileSelected" />
-        <button class="btn" :disabled="isUploading" @click="uploadSelected">
-          {{ isUploading ? "Uploading..." : "Upload JSON" }}
-        </button>
-      </div>
+    <section class="upload-bar">
+      <input
+        ref="fileInput"
+        class="visually-hidden"
+        type="file"
+        accept="application/json"
+        @change="onFileSelected"
+      />
+      <button class="btn" :disabled="isUploading" @click="openFilePicker">
+        {{ isUploading ? "Uploading..." : "Upload session_summary.json" }}
+      </button>
       <p v-if="statusMessage" class="status">{{ statusMessage }}</p>
       <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
     </section>
@@ -241,6 +241,14 @@ async function selectSession(sessionId) {
 function onFileSelected() {
   statusMessage.value = "";
   errorMessage.value = "";
+  uploadSelected();
+}
+
+function openFilePicker() {
+  if (!fileInput.value) {
+    return;
+  }
+  fileInput.value.click();
 }
 
 async function uploadSelected() {
