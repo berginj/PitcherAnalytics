@@ -5,11 +5,26 @@
   "main": "index.js",
   "scripts": {
     "start": "func start",
-    "build": "node -e \"console.log('api build: no-op')\""
+    "build": "node -e \"console.log('api build: no-op')\"",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{js,json,md}\"",
+    "format:check": "prettier --check \"**/*.{js,json,md}\""
   },
   "dependencies": {
     "@azure/data-tables": "^13.3.0",
     "@azure/functions": "^4.4.0",
-    "ajv": "^8.12.0"
+    "ajv": "^8.12.0",
+    "applicationinsights": "^2.9.5",
+    "adm-zip": "^0.5.10"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.1.1"
   }
 }

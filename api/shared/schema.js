@@ -1,10 +1,21 @@
-﻿const path = require("path");
+﻿/**
+ * JSON Schema validation for session summary payloads
+ * Uses AJV (Another JSON Validator) for validation
+ */
+const path = require("path");
 const fs = require("fs");
 const Ajv = require("ajv");
 
+/** @type {Function|null} Compiled AJV validator function */
 let validator = null;
+
+/** @type {Error|null} Cached schema loading error */
 let schemaLoadError = null;
 
+/**
+ * Gets the path to the session summary JSON schema
+ * @returns {string} Absolute path to schema file
+ */
 function getSchemaPath() {
   return (
     process.env.SESSION_SCHEMA_PATH ||
@@ -12,6 +23,11 @@ function getSchemaPath() {
   );
 }
 
+/**
+ * Loads and compiles the JSON schema validator
+ * Results are cached to avoid repeated loading
+ * Errors during loading are also cached
+ */
 function loadValidator() {
   if (validator || schemaLoadError) {
     return;
@@ -27,6 +43,11 @@ function loadValidator() {
   }
 }
 
+/**
+ * Validates a session summary payload against the JSON schema
+ * @param {Object} payload - Session summary to validate
+ * @returns {{ok: boolean, error?: string, details?: Array}} Validation result
+ */
 function validateSessionSummary(payload) {
   loadValidator();
 

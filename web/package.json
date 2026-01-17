@@ -9,13 +9,27 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint . --ext .vue,.js",
+    "lint:fix": "eslint . --ext .vue,.js --fix",
+    "format": "prettier --write \"src/**/*.{vue,js,json,css}\"",
+    "format:check": "prettier --check \"src/**/*.{vue,js,json,css}\""
   },
   "dependencies": {
     "vue": "^3.5.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.3",
-    "vite": "^7.3.1"
+    "@vue/test-utils": "^2.4.3",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-vue": "^9.19.2",
+    "happy-dom": "^12.10.3",
+    "prettier": "^3.1.1",
+    "vite": "^7.3.1",
+    "vitest": "^1.1.0"
   }
 }
