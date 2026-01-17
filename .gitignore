@@ -5,3 +5,4 @@ api/local.settings.json
 .env
 .env.*
 *.log
+/.claude/
